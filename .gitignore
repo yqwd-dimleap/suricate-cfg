@@ -1,0 +1,50 @@
+# ===== suricate-cfg / OpenHands 部署仓：运行时与密钥一律不进 git =====
+
+# 密钥与本机环境（从 env.sh.example 复制）
+env.sh
+config/api_key.txt
+config/*.pem
+config/*.key
+*.key
+*.pem
+
+# Agent 持久化数据（容器挂载，体积大且含密钥/会话）
+.openhands/
+**/.openhands/
+
+# 运行产物
+logs/
+run/
+*.log
+*.pid
+
+# 工作区与演示产出（可按需取消忽略 demo 源码）
+projects/
+# demo/ 若只保留示例源码可提交；忽略本地实验产物：
+demo/**/__pycache__/
+demo/**/*.pyc
+
+# 备份与临时
+*.bak
+*.bak-*
+*.backup
+*~
+*.swp
+.settings.json.bak*
+workspaces.json.bak*
+
+# 节点私密运维记录（若含 key 则忽略；公开清单可改放 docs/）
+# nodes/   # 默认允许提交；若写入过 API Key 请改为忽略或脱敏后再提交
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.code-workspace
+
+# Python / Node 误入
+__pycache__/
+node_modules/
+.venv/
+venv/
