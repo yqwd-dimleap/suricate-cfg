@@ -31,8 +31,7 @@ UI：`http://<host>:8011/canvas`
 | `config/api_key.txt` | ❌ | API Key |
 | `.openhands/` | ❌ | 会话 / settings / secrets |
 | `projects/` `logs/` `run/` | ❌ | 工作区与运行产物 |
-
-详见 `GIT_COMMIT_MAP.md`。
+| 节点/运维笔记、临时 prompt | ❌ | 本机保留即可，不进仓 |
 
 ## 默认镜像
 

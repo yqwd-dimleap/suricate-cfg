@@ -33,8 +33,13 @@ demo/**/*.pyc
 .settings.json.bak*
 workspaces.json.bak*
 
-# 节点私密运维记录（若含 key 则忽略；公开清单可改放 docs/）
-# nodes/   # 默认允许提交；若写入过 API Key 请改为忽略或脱敏后再提交
+# 节点/运维笔记与一次性 prompt（含内网 IP、机器清单）— 不进仓
+nodes/
+REMOTE_NODE_*.md
+PROMPT_FOR_*.md
+*_CHECKLIST.md
+GIT_COMMIT_MAP.md
+MAC_CLIENT.md
 
 # OS / IDE
 .DS_Store
