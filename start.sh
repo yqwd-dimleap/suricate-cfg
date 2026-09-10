@@ -1,27 +1,34 @@
 #!/usr/bin/env bash
-# Start OpenHands Agent Canvas.
+# Start Suricate Agent Canvas.
 # Default: docker --network host (agent shares host localhost; /data mounted rw)
-# Optional: OPENHANDS_MODE=npm for pure host (uvx; heavier / flaky on first boot)
-# Optional: OPENHANDS_MODE=docker-bridge for isolated network + port publish
+# Optional: SURICATE_MODE=npm for pure host (uvx; heavier / flaky on first boot)
+# Optional: SURICATE_MODE=docker-bridge for isolated network + port publish
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck disable=SC1091
 source "$ROOT/env.sh"
 
-MODE="${OPENHANDS_MODE:-docker-host}"   # docker-host | docker-bridge | npm
-NAME="${OPENHANDS_CONTAINER_NAME:-openhands-canvas}"
-IMAGE="${OPENHANDS_IMAGE:-ghcr.io/openhands/agent-canvas:1.16.0}"
-PORT="${OPENHANDS_PORT:-8011}"
-PID_FILE="$OPENHANDS_RUN_DIR/agent-canvas.pid"
-LOG_FILE="$OPENHANDS_LOG_DIR/agent-canvas.log"
-OH_UID="${OPENHANDS_UID:-0}"
-OH_GID="${OPENHANDS_GID:-0}"
+MODE="${SURICATE_MODE:-docker-host}"   # docker-host | docker-bridge | npm
+NAME="${SURICATE_CONTAINER_NAME:-suricate-canvas}"
+IMAGE="${SURICATE_IMAGE:-ghcr.io/openhands/agent-canvas:1.16.0}"
+PORT="${SURICATE_PORT:-8011}"
+PID_FILE="$SURICATE_RUN_DIR/agent-canvas.pid"
+LOG_FILE="$SURICATE_LOG_DIR/agent-canvas.log"
+OH_UID="${SURICATE_UID:-0}"
+OH_GID="${SURICATE_GID:-0}"
 
-mkdir -p "$OPENHANDS_PROJECTS" "$OPENHANDS_LOG_DIR" "$OPENHANDS_RUN_DIR" \
-  "$HOME_OPENHANDS/automation" "$HOME_OPENHANDS/agent-canvas"
-ln -sfn "$HOME_OPENHANDS" /root/.openhands 2>/dev/null || true
+# Migrate legacy host data dir if needed
+if [[ -d "${SURICATE_ROOT}/.openhands" && ! -e "${SURICATE_HOME}" ]]; then
+  mv "${SURICATE_ROOT}/.openhands" "${SURICATE_HOME}"
+fi
+
+mkdir -p "$SURICATE_PROJECTS" "$SURICATE_LOG_DIR" "$SURICATE_RUN_DIR" \
+  "$SURICATE_HOME/automation" "$SURICATE_HOME/agent-canvas"
+# Compat symlink for tools that still look under ~/.openhands
+ln -sfn "$SURICATE_HOME" /root/.openhands 2>/dev/null || true
+ln -sfn "$SURICATE_HOME" /root/.suricate 2>/dev/null || true
 if [[ "$OH_UID" != "0" ]]; then
-  chown -R "$OH_UID:$OH_GID" "$HOME_OPENHANDS" "$OPENHANDS_PROJECTS" "$OPENHANDS_DEMO" 2>/dev/null || true
+  chown -R "$OH_UID:$OH_GID" "$SURICATE_HOME" "$SURICATE_PROJECTS" "$SURICATE_DEMO" 2>/dev/null || true
 fi
 
 if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
@@ -54,9 +61,10 @@ common_env=(
   -e "BROWSER_USE_DISABLE_EXTENSIONS=${BROWSER_USE_DISABLE_EXTENSIONS:-1}"
 )
 
+# Container-internal paths (/home/openhands) are fixed by upstream image user layout.
 common_vols=(
-  -v "$HOME_OPENHANDS:/home/openhands/.openhands"
-  -v "${OPENHANDS_PROJECTS}:/projects"
+  -v "$SURICATE_HOME:/home/openhands/.openhands"
+  -v "${SURICATE_PROJECTS}:/projects"
   -v /data:/data
   # Host root read-only (look under /host/var/log, /host/etc, …). /data also at /data.
   -v /:/host:ro
@@ -103,6 +111,8 @@ if [[ "$MODE" == "docker-host" || "$MODE" == "docker" ]]; then
     docker pull "$IMAGE"
   fi
   docker rm -f "$NAME" >/dev/null 2>&1 || true
+  # drop legacy container name if present
+  docker rm -f openhands-canvas >/dev/null 2>&1 || true
   build_gpu_args
   # --pid host: ps/top see host processes (e.g. marmot-ai)
   # apparmor=unconfined: allow kill/signal to host PIDs (docker-default blocks it)
@@ -133,6 +143,7 @@ if [[ "$MODE" == "docker-bridge" ]]; then
     docker pull "$IMAGE"
   fi
   docker rm -f "$NAME" >/dev/null 2>&1 || true
+  docker rm -f openhands-canvas >/dev/null 2>&1 || true
   build_gpu_args
   cid="$(docker run -d --restart unless-stopped \
     --name "$NAME" \

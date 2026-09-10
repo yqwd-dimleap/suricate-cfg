@@ -1,10 +1,10 @@
 # suricate-cfg
 
-OpenHands / Suricate **部署配置仓**（脚本 + 无密钥模板 + 文档）。  
-**不是** Agent Canvas 源码；运行镜像仍为 `ghcr.io/openhands/agent-canvas`。
+Suricate **部署配置仓**（脚本 + 无密钥模板 + 文档）。  
+**不是** Agent Canvas 源码；运行镜像仍用上游 `ghcr.io/openhands/agent-canvas`（registry 路径固定）。
 
 仓库：<https://github.com/yqwd-dimleap/suricate-cfg>  
-现网目录可保持：`/data/openhands`（与容器挂载一致；Git remote 指向本仓）。
+现网目录可用：`/data/suricate`，或继续用 `/data/openhands`（在 `env.sh` 里设 `SURICATE_ROOT`）。
 
 ## 快速开始
 
@@ -13,7 +13,7 @@ git clone https://github.com/yqwd-dimleap/suricate-cfg.git
 cd suricate-cfg
 cp env.sh.example env.sh
 # 编辑 env.sh：LOCAL_BACKEND_API_KEY、OH_SECRET_KEY、LLM_*、CORS
-mkdir -p config projects logs run .openhands
+mkdir -p config projects logs run .suricate
 # 可选：printf '%s' 'your-key' > config/api_key.txt && chmod 600 config/api_key.txt
 ./start.sh
 ```
@@ -29,10 +29,10 @@ UI：`http://<host>:8011/canvas`
 | `env.sh.example` | ✅ | 环境模板 |
 | `env.sh` | ❌ | 本机密钥与实参 |
 | `config/api_key.txt` | ❌ | API Key |
-| `.openhands/` | ❌ | 会话 / settings / secrets |
+| `.suricate/` | ❌ | 会话 / settings / secrets |
 | `projects/` `logs/` `run/` | ❌ | 工作区与运行产物 |
 | 节点/运维笔记、临时 prompt | ❌ | 本机保留即可，不进仓 |
 
 ## 默认镜像
 
-`ghcr.io/openhands/agent-canvas:1.16.0`（可用 `OPENHANDS_IMAGE` 覆盖）
+`ghcr.io/openhands/agent-canvas:1.16.0`（可用 `SURICATE_IMAGE` 覆盖）

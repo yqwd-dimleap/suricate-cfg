@@ -1,4 +1,4 @@
-"""Demo module for OpenHands smoke test."""
+"""Demo module for Suricate smoke test."""
 
 
 def placeholder() -> None:

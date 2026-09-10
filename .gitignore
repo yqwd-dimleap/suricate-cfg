@@ -1,4 +1,4 @@
-# ===== suricate-cfg / OpenHands 部署仓：运行时与密钥一律不进 git =====
+# ===== suricate-cfg 部署仓：运行时与密钥一律不进 git =====
 
 # 密钥与本机环境（从 env.sh.example 复制）
 env.sh
@@ -9,6 +9,9 @@ config/*.key
 *.pem
 
 # Agent 持久化数据（容器挂载，体积大且含密钥/会话）
+.suricate/
+**/.suricate/
+# legacy path before rename
 .openhands/
 **/.openhands/
 
